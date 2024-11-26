@@ -1,18 +1,40 @@
 const routes = [
   {
+    path: '/login',
+    component: () => import('layouts/LoginLayout.vue'), // Layout para login
+    children: [
+      {
+        path: '', // Página por defecto
+        component: () => import('pages/PaginaLogin.vue'), // Tu formulario de login
+      },
+    ],
+  },
+  {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/IndexPage.vue') }
-    ]
+      {
+        path: '/PaginaRegistroVector',
+        component: () => import('pages/PaginaRegistroVector.vue'),
+      },
+      {
+        path: '/PaginaValidacionLaboratorio',
+        component: () => import('pages/PaginaValidacionLaboratorio.vue'),
+      },
+      {
+        path: '/PaginaRegistroUsuarios',
+        component: () => import('pages/PaginaRegistroUsuarios.vue'),
+      },
+      {
+        path: '/PaginaRegistroDatos',
+        component: () => import('pages/PaginaRegistroDatos.vue'),
+      },
+    ],
   },
-
-  // Always leave this as last one,
-  // but you can also remove it
   {
     path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue')
-  }
-]
+    component: () => import('pages/ErrorNotFound.vue'),
+  },
+];
 
-export default routes
+export default routes;

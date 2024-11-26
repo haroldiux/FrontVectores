@@ -1,30 +1,36 @@
-import { route } from 'quasar/wrappers'
-import { createRouter, createMemoryHistory, createWebHistory, createWebHashHistory } from 'vue-router'
-import routes from './routes'
+import { route } from "quasar/wrappers";
+import {
+  createRouter,
+  createWebHistory,
+} from "vue-router";
+import routes from "./routes";
 
-/*
- * If not building with SSR mode, you can
- * directly export the Router instantiation;
- *
- * The function below can be async too; either use
- * async/await or return a Promise which resolves
- * with the Router instance.
- */
-
-export default route(function (/* { store, ssrContext } */) {
-  const createHistory = process.env.SERVER
-    ? createMemoryHistory
-    : (process.env.VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory)
-
+export default route(function () {
   const Router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }),
     routes,
+    history: createWebHistory(),
+  });
 
-    // Leave this as is and make changes in quasar.conf.js instead!
-    // quasar.conf.js -> build -> vueRouterMode
-    // quasar.conf.js -> build -> publicPath
-    history: createHistory(process.env.VUE_ROUTER_BASE)
-  })
+  // Guard de navegación global
+  Router.beforeEach((to, from, next) => {
+    const user = JSON.parse(localStorage.getItem("user"));
 
-  return Router
-})
+    // Rutas protegidas
+    const protectedRoutes = {
+      1: ["/PaginaRegistroVector", "/PaginaValidacionLaboratorio", "/PaginaRegistroUsuarios", "/PaginaRegistroDatos"], // Admin
+      2: ["/PaginaRegistroDatos", "/PaginaRegistroVector"], // Registrador
+      3: ["/PaginaValidacionLaboratorio", "/PaginaRegistroDatos"], // Laboratorio
+    };
+
+    const allowedRoutes = protectedRoutes[user?.rol_id] || [];
+
+    if (to.path !== "/login" && !allowedRoutes.includes(to.path)) {
+      next("/login"); // Redirige al login si no tiene acceso
+    } else {
+      next(); // Permite la navegación
+    }
+  });
+
+  return Router;
+});
